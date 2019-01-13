@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.project.cpeup.common.service.UserDetailsServiceCustom;
 
@@ -21,21 +23,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public DaoAuthenticationProvider daoAuthenticationProvider() {
 
-		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-		// daoAuthenticationProvider.setPasswordEncoder();
+		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();		
+		daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
 		daoAuthenticationProvider.setUserDetailsService(userDetailsServiceCustom);
 		return daoAuthenticationProvider;
 	}
-
+	
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+	    return new BCryptPasswordEncoder();
+	}
+	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.authenticationProvider(daoAuthenticationProvider());
+		auth.authenticationProvider(daoAuthenticationProvider());		
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
-				.antMatchers("/", "/test/all").permitAll()
+				.antMatchers("/test/admin").hasRole("ADMIN")
+				.antMatchers("/test/user").hasRole("USER")
+				.antMatchers("/", "/test/all").permitAll()				
 				.anyRequest()
 				.authenticated()
 				.and()
