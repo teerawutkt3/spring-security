@@ -51,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.exceptionHandling().accessDeniedPage("/user/403")
 				.and()
 				.formLogin()
+				.loginPage("/login")
 				.permitAll()
 				.and()
 				.logout()
